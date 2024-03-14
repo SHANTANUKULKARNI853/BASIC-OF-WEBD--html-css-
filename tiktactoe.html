@@ -1,0 +1,142 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tic Tac Toe</title>
+    <link rel="stylesheet" href="tiktaktoe.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Tic Tac Toe</h1>
+        <div id="board" class="board">
+            <!-- Game board cells will be generated here -->
+        </div>
+        <div id="message" class="message">
+            Hover over the winner to learn about Tic Tac Toe!
+        </div>
+        <button id="restartBtn">Restart Game</button>
+        <div id="learnMore" class="learn-more">
+            <h2>Learn More</h2>
+            <p>Tic Tac Toe is a classic game played on a 3x3 grid. The goal is to get three of your symbols (X or O) in a row, column, or diagonal. Players take turns placing their symbols until one player wins or the board is full and the game ends in a draw.</p>
+        </div>
+    </div>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+    const board = document.getElementById('board');
+    const message = document.getElementById('message');
+    const restartBtn = document.getElementById('restartBtn');
+    let currentPlayer = 'X';
+    let isGameOver = false;
+    let boardState = ['', '', '', '', '', '', '', '', ''];
+
+    // Initialize the game
+    startGame();
+
+    function startGame() {
+        // Clear the board
+        board.innerHTML = '';
+        boardState = ['', '', '', '', '', '', '', '', ''];
+        isGameOver = false;
+        currentPlayer = 'X';
+        message.textContent = `Click on a cell to make your move.`;
+
+        // Create cells
+        for (let i = 0; i < 9; i++) {
+            const cell = document.createElement('div');
+            cell.classList.add('cell');
+            cell.setAttribute('data-index', i);
+            cell.addEventListener('click', () => handleMove(i));
+            board.appendChild(cell);
+        }
+
+        // If computer starts, make its move
+        if (currentPlayer === 'O') {
+            computerMove();
+        }
+    }
+
+    function handleMove(index) {
+        if (isGameOver || boardState[index] !== '') return;
+
+        // Update board state
+        boardState[index] = currentPlayer;
+
+        // Update UI
+        render();
+
+        // Check for winner
+        const winner = checkWinner();
+        if (winner) {
+            message.textContent = winner === 'T' ? `It's a draw!` : `Player ${winner} wins!`;
+            isGameOver = true;
+            return;
+        }
+
+        // Switch player
+        currentPlayer = currentPlayer === 'X' ? 'O' : 'X';
+        message.textContent = `Player ${currentPlayer === 'X' ? 'X' : 'O'}'s turn`;
+
+        // If it's computer's turn, make its move
+        if (currentPlayer === 'O' && !isGameOver) {
+            setTimeout(computerMove, 500); // Add a slight delay for better visualization
+        }
+    }
+
+    function checkWinner() {
+        const winConditions = [
+            [0, 1, 2],
+            [3, 4, 5],
+            [6, 7, 8],
+            [0, 3, 6],
+            [1, 4, 7],
+            [2, 5, 8],
+            [0, 4, 8],
+            [2, 4, 6]
+        ];
+
+        for (let condition of winConditions) {
+            const [a, b, c] = condition;
+            if (boardState[a] && boardState[a] === boardState[b] && boardState[a] === boardState[c]) {
+                return boardState[a];
+            }
+        }
+
+        // Check for draw
+        if (!boardState.includes('')) {
+            return 'T'; // 'T' represents a draw
+        }
+
+        return null;
+    }
+
+    function render() {
+        // Update UI based on board state
+        const cells = board.querySelectorAll('.cell');
+        cells.forEach((cell, index) => {
+            cell.textContent = boardState[index];
+        });
+    }
+
+    function computerMove() {
+        // Implement AI logic to make the computer's move
+        // For simplicity, we'll choose a random empty cell
+        const emptyCells = boardState.reduce((acc, val, index) => {
+            if (val === '') acc.push(index);
+            return acc;
+        }, []);
+
+        const randomIndex = Math.floor(Math.random() * emptyCells.length);
+        const computerIndex = emptyCells[randomIndex];
+
+        // Make the computer's move
+        handleMove(computerIndex);
+    }
+
+    restartBtn.addEventListener('click', startGame);
+});
+
+    </script>
+</body>
+</html>
